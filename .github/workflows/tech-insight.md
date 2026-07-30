@@ -5,6 +5,10 @@ on:
 strict: false
 permissions:
   contents: read
+  copilot-requests: write
+model: gpt-5.6
+engine:
+  id: copilot
 tools:
   bash: [":*"]
   edit:

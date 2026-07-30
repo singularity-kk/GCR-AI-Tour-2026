@@ -135,13 +135,32 @@ python3 --version  # 确认 3.10+
 - 前往 https://github.com/settings/tokens?type=beta 创建 Fine-grained Personal Access Token。
   - Token name: `copilot-token`
   - Expiration: 30 days
-  - Repository access: All repositories
-  - Permissions: 勾选 Copilot 相关的访问权限（或使用 Classic Token 并勾选 `copilot` 范围）。
+  - Resource owner: 你的个人账号（不要选错组织）
+  - Repository access: **Only select repositories**，只选择当前 Fork 的仓库
+  - Permissions（按 GitHub 页面可见文字勾选，最小可运行配置）:
+    - **Account permissions** → **Copilot requests: Write**
+  - 推荐额外勾选（提升兼容性，便于模型能力读取）:
+    - **Account permissions** → **Models: Read**
 - 回到你的 Fork 仓库 → **Settings** → **Secrets and variables** → **Actions**。
 - 点击 **New repository secret**。
   - Name: `COPILOT_GITHUB_TOKEN`
   - Value: 粘贴刚才的 Token。
   - 点击 **Add secret**。
+
+### 步骤 2.1: 配置推荐模型（Copilot Pro）
+- 回到你的 Fork 仓库 → **Settings** → **Secrets and variables** → **Actions**。
+- 在 **Variables** 中点击 **New repository variable**。
+  - Name: `GH_AW_MODEL_AGENT_COPILOT`
+  - Value: `gpt-5.6`
+
+说明：本实验建议直接使用 `gpt-5.6` 作为变量值。在当前 gh-aw 配置中不需要填写 `terra` 或 `luna` 后缀。
+
+### 步骤 2.2: 确认 gh CLI 触发权限（用于 `gh workflow run`）
+- 如果你是用浏览器 OAuth 完成 `gh auth login`，通常不需要额外配置。
+- 如果你是用 Fine-grained PAT 登录 `gh`，该 PAT 还需要：
+  - **Repository permissions** → **Actions: Write**
+
+说明：这条权限用于“触发工作流”；与 `COPILOT_GITHUB_TOKEN` 的 **Copilot requests: Write** 是两套独立权限。
 
 > ⚠️ **注意**：需要你的 GitHub 账号有 Copilot 订阅才能使用 Copilot 引擎。
 
