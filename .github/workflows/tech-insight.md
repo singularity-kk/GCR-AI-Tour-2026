@@ -29,6 +29,8 @@ network:
     - "chargedevs.com"
 safe-outputs:
   create-pull-request:
+    target-repo: "singularity-kk/GCR-AI-Tour-2026"
+    base-branch: ${{ github.ref_name }}
     title-prefix: "[ev-insight] "
     labels: [automation, ev-insight]
 mcp-scripts:
