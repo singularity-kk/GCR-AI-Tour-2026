@@ -42,6 +42,7 @@ export default function HomePage() {
   const [status, setStatus] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const completedRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -52,6 +53,7 @@ export default function HomePage() {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    completedRef.current = false;
     setError(null);
     setResult(null);
     setStatus("正在建立 SSE 连接并启动 Copilot 会话。");
@@ -81,8 +83,12 @@ export default function HomePage() {
 
       eventSource.addEventListener("result", (incoming) => {
         const data = JSON.parse((incoming as MessageEvent<string>).data) as GenerateResponse;
+        completedRef.current = true;
         setResult(data);
         setStatus("PPT 已生成，可以下载结果文件。");
+        setIsStreaming(false);
+        eventSource.close();
+        eventSourceRef.current = null;
       });
 
       eventSource.addEventListener("generation-error", (incoming) => {
@@ -95,6 +101,7 @@ export default function HomePage() {
       });
 
       eventSource.addEventListener("complete", () => {
+        completedRef.current = true;
         setIsStreaming(false);
         eventSource.close();
         eventSourceRef.current = null;
@@ -102,6 +109,12 @@ export default function HomePage() {
 
       eventSource.onerror = () => {
         if (eventSourceRef.current !== eventSource) {
+          return;
+        }
+
+        if (completedRef.current || eventSource.readyState === EventSource.CLOSED) {
+          setIsStreaming(false);
+          eventSourceRef.current = null;
           return;
         }
 
